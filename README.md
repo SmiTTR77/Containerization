@@ -6,7 +6,7 @@
 
 [**`Урок 2. Механизмы контрольных групп`**](https://github.com/SmiTTR77/Containerization/tree/main/HW2)
 
-[**`Урок 3. Введение в Docker`**]([https://github.com/SmiTTR77/Containerization/tree/main/HW3)
+[**`Урок 3. Введение в Docker`**](https://github.com/SmiTTR77/Containerization/tree/main/HW3)
 
 [**`Урок 4. Dockerfile и слои`**](https://github.com/SmiTTR77/Containerization/tree/main/HW4)
 
