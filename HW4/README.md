@@ -9,3 +9,13 @@
 ### 3. При запуске контейнера должно запускаться самостоятельно написанное приложение
 
 ## Решение
+
+**Файлы :**
+
+[Dockerfile](https://github.com/SmiTTR77/Containerization/blob/main/HW4/Dockerfile)
+
+[Python-file](https://github.com/SmiTTR77/Containerization/blob/main/HW4/task.py)
+
+**Команды :**
+
+![command](https://github.com/SmiTTR77/Containerization/blob/main/HW4/img/1.png)
