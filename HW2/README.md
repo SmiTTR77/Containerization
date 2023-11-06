@@ -23,3 +23,170 @@
 ```
 
 ## Решение
+
+* Установим LXC и шаблоны:
+
+```
+sudo apt install lxc lxc-templates uidmap
+```
+
+![sudo apt install lxc lxc-templates uidmap](https://github.com/SmiTTR77/Containerization/blob/main/HW2/img/1.png)
+
+Пробуем инициализировать LXD на машине. Вводим команду:
+
+```
+lxd init
+```
+
+Команда «lxd» не найдена, но может быть установлена с помощью:
+
+```
+sudo snap install lxd 
+```
+
+После инициализации снова убеждаемся, что все нормально установлено, путем проверки версии LXC:
+
+```
+lxc version
+```
+
+![lxc version](https://github.com/SmiTTR77/Containerization/blob/main/HW2/img/2.png)
+
+* Следующей командой создаем новый контейнер с именем testOne и задаем путь для файла конфигурации:
+
+```
+sudo lxc-create -n testOne -t ubuntu -f /usr/share/doc/lxc/lxc-veth.conf 
+```
+
+Видим большое количество текста, значит команда введена правильно. В тексте указана ошибка открытия файла конфигурации указанного нами. На запуск контейнера это не повлияет, а случается из=за того, что такого файла на данном этапе не существует.
+
+![lxc create](https://github.com/SmiTTR77/Containerization/blob/main/HW2/img/3.png)
+
+После того, как контейнер установился мы видим следующий текст:
+
+![lxc creates](https://github.com/SmiTTR77/Containerization/blob/main/HW2/img/4.png)
+
+Система оповещает нас о том, что контейнер создан, у него заданы стандартные параметры (логин: ubuntu, пароль: ubuntu).
+
+* Теперь необходимо запустить созданный нами контейнер. Для этого вводим следующую команду:
+
+```
+sudo lxc-start -d -n testOne
+```
+
+Если ситема никак не оповестила нас ни о чем, значит команда успешно выполнена. Проверить это можно, например, путем входа в контейнер:
+
+```
+sudo lxc-attach -n testOne
+```
+
+Видим, что мы зашли в testOne под root.
+
+![lxc-attach](https://github.com/SmiTTR77/Containerization/blob/main/HW2/img/5.png)
+
+* Вводим следующую команду для просмотра выделенной и свободной памяти:
+
+```
+free -m
+```
+
+![free -m](https://github.com/SmiTTR77/Containerization/blob/main/HW2/img/6.png)
+
+Для удобства сразу перейдем в нужную папку:
+
+```
+cd sys/fs/cgroup
+```
+
+Считываем данные из файла, в котором уграничивается потребление памяти контейнером:
+
+```
+cat memory.max
+```
+
+Здесь мы можем наблюдать, что ограничение памяти установлено на максимальное значение.
+
+![cat memory.max](https://github.com/SmiTTR77/Containerization/blob/main/HW2/img/7.png)
+
+Далее выполним тоже самое из папки .lxc:
+
+![cat memory.max](https://github.com/SmiTTR77/Containerization/blob/main/HW2/img/8.png)
+
+Убеждаемся в максимальном значении. Выходим из контейнера:
+
+```
+exit
+```
+
+Для того, что бы ограничить потребление памяти контейнером, необходимо добавить строку в файл конфигурации. Для начала считаем информацию из него и убедимся, что ограничений там нет командой:
+
+```
+sudo cat /var/lib/lxc/testOne/config
+```
+
+![cat memory.max](https://github.com/SmiTTR77/Containerization/blob/main/HW2/img/9.png)
+
+После этого любым удобным редактором (я делал через редактор nano) добавляем в этот файл конфигурации вниз текста следующую строку:
+
+```
+lxc.cgroup2.memory.max = 256M
+```
+
+![memory.max = 256M](https://github.com/SmiTTR77/Containerization/blob/main/HW2/img/10.png)
+
+Таким образом мы ограничили потребление памяти на более 256 мб.
+Останавливаем контейнер и снова запускаем его.
+Вводим следующую команду, что бы убедиться, что ограничение работает:
+
+```
+sudo cat /sys/fs/cgroup/lxc.payload.testOne/memory.max
+```
+
+![memory.max = 256 mb](https://github.com/SmiTTR77/Containerization/blob/main/HW2/img/11.png)
+
+Как мы видим, система пересчитала и выдала результат, где много цифр. Не пугаемся, это значение примерно равно 256 мб.
+
+* Далее просмотрим список имеющихся в нашей системе контейнеров:
+
+```
+sudo lxc-ls -f
+```
+
+ У нас имеется один контейнер testOne, он запущен и в автозапуске стоит 0 (что означает, что автозапуск контейнера отключен).
+ Нам необходимо включить автозапуск, для этого октрываем файл конфигурации в редакторе nano:
+
+```
+sudo nano /var/lib/lxc/testOne/config
+```
+
+![sudo nano /var/lib/lxc/testOne/config](https://github.com/SmiTTR77/Containerization/blob/main/HW2/img/12.png)
+
+Добавляем в конец текста файла конфигурации следующую строку:
+
+```
+lxc.start.auto = 1
+```
+
+Сохраняем, закрываем редактор и перезагружаем систему, например командой '$ reboot'.
+
+После перезагрузки снова выполняем команду:
+
+```
+sudo lxc-ls -f
+```
+
+Вводим пароль root и убеждаемся, что контейнер запущен и автозапуск включен.
+
+![autorun](https://github.com/SmiTTR77/Containerization/blob/main/HW2/img/13.png)
+
+* При запуске контейнера можно в параметрах команды указать, где хранить логи, например:
+
+```
+lxc-start -n testOne --logfile log.log
+```
+
+* Для удаления контейнера необходмио воспользоваться следующей командой:
+
+```
+lxc-destroy -n testOne
+```
